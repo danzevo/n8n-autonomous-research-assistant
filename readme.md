@@ -1,10 +1,6 @@
 # 🤖 Multi-Modal Telegram AI Assistant & YouTube Summarizer
 *(Role: Automation Engineer & AI Integrator)*
 
-## 📸 System Interface
-`[ ➔ INSERT SCREENSHOT HERE ]`  
-*(Tip: Take a screenshot of the completed n8n workflow canvas showing the Switch routing, the AI Agent with the Wikipedia tool, and the YouTube transcript pipeline. Include a screenshot of the Telegram chat!)*
-
 ---
 
 ## 💡 The Problem
@@ -38,6 +34,3 @@ Engineered a seamless pipeline to bypass YouTube's lack of native transcript API
 Integrated the entire automation framework with a local LM Studio instance hosting the newly released, highly capable LLaMA 3.1 8B model. By proxying the standard OpenAI connection nodes to a `localhost` endpoint, the system performs complex natural language processing, tool calling, and massive document summarization entirely offline.
 
 ---
-
-## 🔗 Links
-* **[GitHub Repository / Demo Video]** -> `[Insert Link Here]`

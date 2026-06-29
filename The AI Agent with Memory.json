@@ -1,0 +1,399 @@
+{
+  "name": "The AI Agent with Memory",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bd82f000-1388-46b2-b74d-bd68edee9367",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        304,
+        176
+      ],
+      "id": "7933cd90-8dc3-48a0-83a4-ff9e72510093",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        32
+      ],
+      "id": "d086c641-1f20-416b-972d-2aa2aa9cf24a",
+      "name": "Telegram Trigger",
+      "webhookId": "c030958d-e57e-4cc9-b873-8b460b087a90",
+      "credentials": {
+        "telegramApi": {
+          "id": "qYiYoX8B7Ms3mzIQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "uncategorized:2",
+          "mode": "list",
+          "cachedResultName": "uncategorized:2"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        192
+      ],
+      "id": "bc5dfcbe-4797-4dce-b615-620f69e33e7e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mMIy8Ny0HD3Wi4L5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "9ab3cfb8-8ff9-449e-bef0-323e96bc8017",
+      "name": "Send a text message",
+      "webhookId": "6d3204bf-c5c0-4425-ae5b-c9a691194706",
+      "credentials": {
+        "telegramApi": {
+          "id": "qYiYoX8B7Ms3mzIQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        432,
+        208
+      ],
+      "id": "41547ce0-fce9-4633-b5e4-1145c798ce08",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "youtube.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "b579f95c-97c0-4ac1-8c89-fe3c9ba979c1"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "af55d5d1-cb22-457b-80df-1b1bb93952da",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "youtu.be",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        32
+      ],
+      "id": "8330acdd-356a-4cc3-89b8-a50c1f9a03e5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "url": "=https://youtube-captions-transcript-subtitles-video-combiner.p.rapidapi.com/download-webvtt/{{ $json.message.text.match(/[a-zA-Z0-9_-]{11}/)[0] }}?language=en&response_mode=default",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key",
+              "value": "d1aee43a92msh8560d3e00284beap1b0a4fjsn5bf935f7cc36"
+            },
+            {
+              "name": "X-RapidAPI-Host",
+              "value": "youtube-captions-transcript-subtitles-video-combiner.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -80,
+        304
+      ],
+      "id": "12f845f3-6d15-4957-8ab4-3d6bf2405c11",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please write a highly detailed summary of this YouTube video based on its transcript. \n\nTranscript:\n{{ $json.data }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        96,
+        352
+      ],
+      "id": "a4a0024d-93f5-4809-8fb2-8399c06261ec",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "meta-llama-3.1-8b-instruct",
+          "mode": "list",
+          "cachedResultName": "meta-llama-3.1-8b-instruct"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        528
+      ],
+      "id": "f1c90f41-0e83-44ef-8dd0-090117a6f394",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "mMIy8Ny0HD3Wi4L5",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        384
+      ],
+      "id": "e1561c7f-9f3a-49cd-9080-619ac38f9220",
+      "name": "Send a text message1",
+      "webhookId": "3b019242-7bb0-4987-917c-4c773c249f10",
+      "credentials": {
+        "telegramApi": {
+          "id": "qYiYoX8B7Ms3mzIQ",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4e8889c8-0d6c-436d-b33c-a319e9b1eae0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18e64434879a62d0f53f7a4152df95e0c6f3205bd6e3a9ebd171c3b4964e4afb"
+  },
+  "nodeGroups": [],
+  "id": "agZg0WF81ZANct5c",
+  "tags": []
+}
